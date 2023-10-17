@@ -1,0 +1,85 @@
+#include <stdio.h>
+
+int main() {
+    int processes, resources, i, j;
+
+    // Input number of processes and resources
+    printf("Enter number of processes: ");
+    scanf("%d", &processes);
+
+    printf("Enter number of resources: ");
+    scanf("%d", &resources);
+
+    int max[processes][resources];  // Maximum resources required by each process
+    int allocation[processes][resources];  // Resources currently allocated to each process
+    int need[processes][resources];  // Resources needed by each process
+    int available[resources];  // Available resources
+
+    // Input maximum resources required by each process
+    printf("\nEnter maximum resources required by each process:\n");
+    for (i = 0; i < processes; i++) {
+        for (j = 0; j < resources; j++) {
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    // Input resources currently allocated to each process
+    printf("\nEnter resources currently allocated to each process:\n");
+    for (i = 0; i < processes; i++) {
+        for (j = 0; j < resources; j++) {
+            scanf("%d", &allocation[i][j]);
+            need[i][j] = max[i][j] - allocation[i][j];
+        }
+    }
+
+    // Input available resources
+    printf("\nEnter available resources:\n");
+    for (j = 0; j < resources; j++) {
+        scanf("%d", &available[j]);
+    }
+
+    // Initialize finish array
+    int finish[processes];
+    for (i = 0; i < processes; i++) {
+        finish[i] = 0;
+    }
+
+    // Check if a process can be allocated resources
+    for (i = 0; i < processes; i++) {
+        if (finish[i] == 0) {
+            int can_allocate = 1;
+            for (j = 0; j < resources; j++) {
+                if (need[i][j] > available[j]) {
+                    can_allocate = 0;
+                    break;
+                }
+            }
+
+            if (can_allocate) {
+                // Allocate resources to process
+                for (j = 0; j < resources; j++) {
+                    available[j] += allocation[i][j];
+                }
+                finish[i] = 1;
+                i = -1;  // Reset loop to check all processes again
+            }
+        }
+    }
+
+    // Check if all processes were able to finish
+    int safe = 1;
+    for (i = 0; i < processes; i++) {
+        if (finish[i] == 0) {
+            safe = 0;
+            break;
+        }
+    }
+
+    if (safe) {
+        printf("\nSafe sequence exists!\n");
+    } else {
+        printf("\nNo safe sequence exists!\n");
+    }
+
+    return 0;
+}
