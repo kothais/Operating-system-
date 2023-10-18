@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_FRAMES 3 // Maximum number of frames
+
+// Structure to represent a page in memory
+typedef struct {
+    int page_number;
+    int last_used;
+} Page;
+
+// Function to find the index of the page with the oldest last_used value
+int find_oldest(Page frames[], int num_frames) {
+    int oldest_index = 0;
+    int oldest_last_used = frames[0].last_used;
+
+    for (int i = 1; i < num_frames; i++) {
+        if (frames[i].last_used < oldest_last_used) {
+            oldest_index = i;
+            oldest_last_used = frames[i].last_used;
+        }
+    }
+
+    return oldest_index;
+}
+
+int main() {
+    int page_sequence[] = {1, 3, 0, 3, 5, 6, 3}; // Example page sequence
+    int num_pages = sizeof(page_sequence) / sizeof(page_sequence[0]);
+
+    Page frames[MAX_FRAMES]; // Array to represent frames in memory
+    int num_frames = 0;
+
+    for (int i = 0; i < num_pages; i++) {
+        int page_number = page_sequence[i];
+        int page_found = 0;
+
+        // Check if the page is already in memory
+        for (int j = 0; j < num_frames; j++) {
+            if (frames[j].page_number == page_number) {
+                page_found = 1;
+                frames[j].last_used = i; // Update last used time
+                break;
+            }
+        }
+
+        if (!page_found) {
+            // Page is not in memory
+            if (num_frames < MAX_FRAMES) {
+                // There is still space in memory
+                frames[num_frames].page_number = page_number;
+                frames[num_frames].last_used = i;
+                num_frames++;
+            } else {
+                // Memory is full, perform page replacement
+                int oldest_index = find_oldest(frames, num_frames);
+                frames[oldest_index].page_number = page_number;
+                frames[oldest_index].last_used = i;
+            }
+        }
+
+        // Print the current state of frames in memory
+        printf("Page %d: ", page_number);
+        for (int j = 0; j < num_frames; j++) {
+            printf("%d ", frames[j].page_number);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
