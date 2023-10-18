@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <pthread.h>
+
+int shared_data = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+int readers_count = 0;
+
+void* reader(void* arg) {
+    pthread_mutex_lock(&mutex);
+    readers_count++;
+    if(readers_count == 1) {
+        pthread_mutex_lock(&rw_mutex);
+    }
+    pthread_mutex_unlock(&mutex);
+
+    // Read shared data
+    printf("Reader %d read data: %d\n", (int)arg, shared_data);
+
+    pthread_mutex_lock(&mutex);
+    readers_count--;
+    if(readers_count == 0) {
+        pthread_mutex_unlock(&rw_mutex);
+    }
+    pthread_mutex_unlock(&mutex);
+
+    return NULL;
+}
+
+void* writer(void* arg) {
+    pthread_mutex_lock(&rw_mutex);
+
+    // Write to shared data
+    shared_data++;
+    printf("Writer %d wrote data: %d\n", (int)arg, shared_data);
+
+    pthread_mutex_unlock(&rw_mutex);
+
+    return NULL;
+}
+
+int main() {
+    pthread_t readers[5], writers[5];
+
+    for(int i = 0; i < 5; i++) {
+        pthread_create(&readers[i], NULL, reader, (void*)i);
+        pthread_create(&writers[i], NULL, writer, (void*)i);
+    }
+
+    for(int i = 0; i < 5; i++) {
+        pthread_join(readers[i], NULL);
+        pthread_join(writers[i], NULL);
+    }
+
+    return 0;
+}
