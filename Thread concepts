@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <pthread.h>
+
+void *printNumbers(void *threadID) {
+    long tid;
+    tid = (long)threadID;
+    for(int i = 1; i <= 5; i++) {
+        printf("Thread %ld: %d\n", tid, i);
+    }
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t thread1, thread2;
+    int rc1, rc2;
+
+    long t1 = 1, t2 = 2;
+
+    // Create thread 1
+    rc1 = pthread_create(&thread1, NULL, printNumbers, (void *)t1);
+    if (rc1) {
+        printf("Error creating thread 1; return code: %d\n", rc1);
+        return -1;
+    }
+
+    // Create thread 2
+    rc2 = pthread_create(&thread2, NULL, printNumbers, (void *)t2);
+    if (rc2) {
+        printf("Error creating thread 2; return code: %d\n", rc2);
+        return -1;
+    }
+
+    // Wait for threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    return 0;
+}
