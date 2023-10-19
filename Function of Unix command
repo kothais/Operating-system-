@@ -1,0 +1,17 @@
+include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    char command[100];
+
+    printf("Simulating the 'ls' command:\n");
+    snprintf(command, sizeof(command), "ls");
+
+    int status = system(command);
+
+    if (status == -1) {
+        perror("Error executing the command");
+    }
+
+    return 0;
+}
