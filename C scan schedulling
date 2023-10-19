@@ -1,0 +1,69 @@
+include <stdlib.h>
+
+// Function to sort an array in ascending order
+void sort(int arr[], int n) {
+    int temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Function to implement the C-SCAN disk scheduling algorithm
+void C_SCAN(int requestQueue[], int head, int size, int maxCylinder) {
+    // Sort the request queue
+    sort(requestQueue, size);
+
+    int seekSequence[size + 2];
+    int seekCount = 0;
+
+    int curTrack = head;
+
+    // Move towards the right
+    for (int i = 0; i < size; i++) {
+        if (requestQueue[i] >= curTrack && requestQueue[i] <= maxCylinder) {
+            seekSequence[seekCount++] = requestQueue[i];
+            curTrack = requestQueue[i];
+        }
+    }
+
+    // Go to the beginning
+    seekSequence[seekCount++] = 0;
+
+    // Continue moving towards the right
+    for (int i = 0; i < size; i++) {
+        if (requestQueue[i] < curTrack) {
+            seekSequence[seekCount++] = requestQueue[i];
+            curTrack = requestQueue[i];
+        }
+    }
+
+    printf("Seek Sequence: ");
+    for (int i = 0; i < seekCount; i++) {
+        printf("%d ", seekSequence[i]);
+    }
+    printf("\n");
+
+    int totalSeekTime = 0;
+    for (int i = 1; i < seekCount; i++) {
+        totalSeekTime += abs(seekSequence[i] - seekSequence[i - 1]);
+    }
+
+    printf("Total seek time: %d\n", totalSeekTime);
+}
+
+int main() {
+    int requestQueue[] = {98, 183, 37, 122, 14, 124, 65, 67};
+    int size = sizeof(requestQueue) / sizeof(requestQueue[0]);
+    int head = 53;
+    int maxCylinder = 199;
+
+    C_SCAN(requestQueue, head, size, maxCylinder);
+
+    return 0;
+}
